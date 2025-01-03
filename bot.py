@@ -40,9 +40,10 @@ def echo_message(message):
     b = [x['string_list_data'][0]['value'] for x in following['relationships_following']]
     # Creamos una lista con los nombres de los unfollowers
     unfollowers = set(b) - set(a)
-    # Enviamos la lista de unfollowers, cada uno en una linea con un - delante para que se vea como una lista
-    bot.reply_to(message, "\n".join([f"- {x}" for x in unfollowers]))
-    # Eliminamos el fichero del disco
+    # Enviamos la lista de unfollowers, cada uno en una linea con un - delante para que se vea como una lista, con enlaces a los perfiles de instagram y sin mostrar preview
+    bot.send_message(message.chat.id, "\n".join([f"- [{x}](https://www.instagram.com/{x}/)" for x in unfollowers]), parse_mode='Markdown', disable_web_page_preview=True)
+    # bot.send_message(message.chat.id, "\n".join([f"- {x}" for x in unfollowers]))
+    # Eliminamos el fichero del discoss
     os.remove(f'followers-{message.chat.id}.zip')
 
 # Iniciamos el bot
