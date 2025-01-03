@@ -1,6 +1,7 @@
 import os
 import zipfile
 import json
+from io import BytesIO
 import requests
 from dotenv import load_dotenv
 import telebot
@@ -27,7 +28,7 @@ def echo_message(message):
     file_id = message.document.file_id
     file_info = bot.get_file(file_id)
     # Comprobamos que el fichero sea un ZIP
-    if not file_info.file_path.endswith('.zip'):    
+    if not file_info.file_path.endswith('.zip'):
         bot.reply_to(message, "Por favor, mándame un fichero ZIP")
         return
     # Comprobamos que el tamaño del fichero sea menor de 20MB
@@ -36,13 +37,10 @@ def echo_message(message):
         return
     file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(token, file_info.file_path))
     bot.reply_to(message, "OK, he recibido el fichero, ahora voy a procesarlo")
-    # Guardamos el fichero en disco con el identificador del chat
-    with open(f'followers-{message.chat.id}.zip', 'wb') as f:
-        f.write(file.content)
     try:
         followers, following = [], {'relationships_following': []}
         # Extraemos el fichero ZIP
-        with zipfile.ZipFile(f'followers-{message.chat.id}.zip', 'r') as zip_ref:
+        with zipfile.ZipFile(BytesIO(file.content)) as zip_ref:
             # Leemos los ficheros JSON
             try:
                 with zip_ref.open('connections/followers_and_following/followers_1.json') as f:
@@ -61,8 +59,6 @@ def echo_message(message):
         bot.send_message(message.chat.id, "\n".join([f"- [{x}](https://www.instagram.com/{x}/)" for x in unfollowers]), parse_mode='Markdown', disable_web_page_preview=True)
     except:
         bot.reply_to(message, "No he podido procesar el fichero, asegúrate de que es el fichero correcto")
-    # Eliminamos el fichero del disco
-    os.remove(f'followers-{message.chat.id}.zip')
 
 # Iniciamos el bot
 bot.infinity_polling()
