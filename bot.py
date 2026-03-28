@@ -52,7 +52,7 @@ def echo_message(message):
         # Creamos una lista con los nombres de los followers
         a = [x['string_list_data'][0]['value'] for x in followers]
         # Creamos una lista con los nombres de los following
-        b = [x['string_list_data'][0]['value'] for x in following['relationships_following']]
+        b = [x['title'] for x in following['relationships_following']]
         # Creamos una lista con los nombres de los unfollowers
         unfollowers = set(b) - set(a)
         # Enviamos la lista de unfollowers, cada uno en una linea con un - delante para que se vea como una lista, con enlaces a los perfiles de instagram y sin mostrar preview
